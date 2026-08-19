@@ -3,26 +3,26 @@
 ####################################################################################
 
 # c compiler
-CC = gcc-9
+CC = gcc-15
 
 # linux, win32, or darwin
-PLATFORM = darwin
+PLATFORM = linux
 
 # path to the java include directory
-JAVAINCL = /usr/local/java/latest/include
+JAVAINCL = /usr/lib/jvm/java-26-openjdk/include
 
 # path to the FFTW3 include directory
-FFTWINCL = /usr/local/include
+FFTWINCL = /usr/include/
 
 # path to the FFTW3 library directory
-FFTWLIBDIR = /usr/local/lib
+FFTWLIBDIR = /usr/lib/
 
 # FFTW3 library name
 # usually 'fftw3' but the precompiled win32 binary may be 'fftw3-3'
 FFTWLIBNM = fftw3
 
 # shared library target
-TARGET = libjfftw.dylib
+TARGET = libjfftw.so
 
 # FFTW thread library name
 # leave this blank if you compiled FFTW with '--with-combined-threads' or if you did

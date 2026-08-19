@@ -3,13 +3,18 @@ package jfftw.planning;
 import jfftw.data.Alignment;
 import jfftw.data.Dimensions;
 import jfftw.enums.Complexity;
+import jfftw.enums.R2RKind;
 import jfftw.exceptions.UnsupportedComplexityException;
+
+import java.util.Arrays;
 
 public final class PrimitivePlan extends Plan<double[]> {
 
     private static native void jfftw_execute_dft(PrimitivePlan p, double[] ci, double[] co);
     private static native void jfftw_execute_dft_c2r(PrimitivePlan p, double[] ci, double[] ro);
     private static native void jfftw_execute_dft_r2c(PrimitivePlan p, double[] ri, double[] co);
+    private static native void jfftw_execute_r2r(PrimitivePlan p, double[] ri, double[] co);
+
     private static synchronized native long jfftw_plan_dft(int rank, int[] n, double[] ci, double[] co, int sign, int flags);
     private static synchronized native long jfftw_plan_dft_1d(int n, double[] ci, double[] co, int sign, int flags);
     private static synchronized native long jfftw_plan_dft_2d(int n0, int n1, double[] ci, double[] co, int sign, int flags);
@@ -22,6 +27,11 @@ public final class PrimitivePlan extends Plan<double[]> {
     private static synchronized native long jfftw_plan_dft_r2c_1d(int n, double[] ri, double[] co, int flags);
     private static synchronized native long jfftw_plan_dft_r2c_2d(int n0, int n1, double[] ri, double[] co, int flags);
     private static synchronized native long jfftw_plan_dft_r2c_3d(int n0, int n1, int n2, double[] ri, double[] co, int flags);
+
+    private static synchronized native long jfftw_plan_r2r(int rank, int[] n, double[] ci, double[] ro, int[] kind, int flags);
+    private static synchronized native long jfftw_plan_r2r_1d(int n, double[] ci, double[] ro, int kind, int flags);
+    private static synchronized native long jfftw_plan_r2r_2d(int n0, int n1, double[] ci, double[] ro, int kind0, int kind1, int flags);
+    private static synchronized native long jfftw_plan_r2r_3d(int n0, int n1, int n2, double[] ci, double[] ro, int kind0, int kind1, int kind2, int flags);
 
     /**
      * Constructs a new plan using primitive double arrays.
@@ -45,7 +55,36 @@ public final class PrimitivePlan extends Plan<double[]> {
                 dims,
                 in == out ? Placement.IN_PLACE : Placement.OUT_OF_PLACE,
                 Alignment.of(in),
-                Alignment.of(out)
+                Alignment.of(out),
+                dims == null & sign > 0 ? R2RKind.FFTW_HC2R : R2RKind.FFTW_R2HC
+        );
+    }
+
+    /**
+     * Constructs a new plan using primitive double arrays.
+     *
+     * @param in    complex or real input
+     * @param out   complex or real output
+     * @param sign  transform sign (-1 or 1)
+     * @param cplx  transform complexity
+     * @param flags FFTW flags
+     * @param dims  nullable dimensions
+     * @param kinds  kinds of Real to Real transformation, only used in those, cannot be null when they are used, amount should be equal to amount of dimensions
+     */
+    public PrimitivePlan(double[] in, double[] out, int sign, Complexity cplx, int flags, Dimensions dims, R2RKind... kinds) {
+        super(
+                in,
+                out,
+                in.length,
+                out.length,
+                sign,
+                cplx,
+                flags,
+                dims,
+                in == out ? Placement.IN_PLACE : Placement.OUT_OF_PLACE,
+                Alignment.of(in),
+                Alignment.of(out),
+                kinds
         );
     }
 
@@ -65,6 +104,7 @@ public final class PrimitivePlan extends Plan<double[]> {
             case COMPLEX_TO_COMPLEX: jfftw_execute_dft(this, in, out); break;
             case COMPLEX_TO_REAL: jfftw_execute_dft_c2r(this, in, out); break;
             case REAL_TO_COMPLEX: jfftw_execute_dft_r2c(this, in, out); break;
+            case REAL_TO_REAL: jfftw_execute_r2r(this, in, out); break;
             default: throw new UnsupportedComplexityException(complexity);
         }
     }
@@ -89,6 +129,12 @@ public final class PrimitivePlan extends Plan<double[]> {
                 case 2: return jfftw_plan_dft_r2c_2d(dims[0], dims[1], input, output, flags);
                 case 3: return jfftw_plan_dft_r2c_3d(dims[0], dims[1], dims[2], input, output, flags);
                 default: return jfftw_plan_dft_r2c(rank, dims, input, output, flags);
+            }
+            case REAL_TO_REAL: switch (rank) {
+                case 1: return jfftw_plan_r2r_1d(dims[0], input, output, kinds[0].ordinal(), flags);
+                case 2: return jfftw_plan_r2r_2d(dims[0], dims[1], input, output, kinds[0].ordinal(), kinds[1].ordinal(), flags);
+                case 3: return jfftw_plan_r2r_3d(dims[0], dims[1], dims[2], input, output, kinds[0].ordinal(), kinds[1].ordinal(), kinds[2].ordinal(), flags);
+                default: return jfftw_plan_r2r(rank, dims, input, output, Arrays.stream(kinds).mapToInt(R2RKind::ordinal).toArray(), flags);
             }
             default: throw new UnsupportedComplexityException(complexity);
         }

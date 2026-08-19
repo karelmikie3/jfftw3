@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1execute_1dft_1r2
 
 /*
  * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_execute_r2r
+ * Signature: (Ljfftw/planning/PrimitivePlan;[D[D)V
+ */
+JNIEXPORT void JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1execute_1r2r
+  (JNIEnv *, jclass, jobject, jdoubleArray, jdoubleArray);
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
  * Method:    jfftw_plan_dft
  * Signature: (I[I[D[DII)J
  */
@@ -126,6 +134,38 @@ JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1dft_1r2c_
  */
 JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1dft_1r2c_13d
   (JNIEnv *, jclass, jint, jint, jint, jdoubleArray, jdoubleArray, jint);
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r
+ * Signature: (I[I[D[D[II)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r
+  (JNIEnv *, jclass, jint, jintArray, jdoubleArray, jdoubleArray, jintArray, jint);
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_1d
+ * Signature: (I[D[DII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_11d
+  (JNIEnv *, jclass, jint, jdoubleArray, jdoubleArray, jint, jint);
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_2d
+ * Signature: (II[D[DIII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_12d
+  (JNIEnv *, jclass, jint, jint, jdoubleArray, jdoubleArray, jint, jint, jint);
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_3d
+ * Signature: (III[D[DIIII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_13d
+  (JNIEnv *, jclass, jint, jint, jint, jdoubleArray, jdoubleArray, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }

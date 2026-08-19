@@ -48,6 +48,21 @@ JNIEXPORT void JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1execute_1dft_1r2
 
 /*
  * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_execute_r2r
+ * Signature: (Ljfftw/planning/PrimitivePlan;[D[D)V
+ */
+JNIEXPORT void JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1execute_1r2r
+  (JNIEnv *env, jclass clazz, jobject jplan, jdoubleArray jin, jdoubleArray jout) {
+    fftw_plan plan = get_fftw_plan(env, jplan);
+    double *ri = (double *) get_array(env, jin);
+    double *ro = (double *) get_array(env, jout);
+    fftw_execute_r2r(plan, ri, ro);
+    release_array(env, jin, ri, JNI_COMMIT);
+    release_array(env, jout, ro, JNI_COMMIT);
+}
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
  * Method:    jfftw_plan_dft
  * Signature: (I[I[D[DII)J
  */
@@ -230,4 +245,77 @@ JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1dft_1r2c_
     release_array(env, jin, ri, JNI_COMMIT);
     release_array(env, jout, co, JNI_COMMIT);
     return (jlong) plan;
+}
+
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r
+ * Signature: (I[I[D[D[II)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r
+  (JNIEnv *env, jclass clazz, jint rank, jintArray jdims, jdoubleArray jin, jdoubleArray jout, jintArray jkinds, jint flags) {
+
+  // fftw_r2r_kind kinds[rank];
+
+  int *dims = (*env)->GetPrimitiveArrayCritical(env, jdims, 0);
+  double *ri = (double *) get_array(env, jin);
+  double *ro = (double *) get_array(env, jout);
+  int *kinds = (*env)->GetPrimitiveArrayCritical(env, jkinds, 0);
+
+  // for (int i = 0; i < rank; ++i) {
+  //   kinds[i] = (fftw_r2r_kind) ikinds[i];
+  // }
+
+  fftw_plan plan = fftw_plan_r2r(rank, dims, ri, ro, (fftw_r2r_kind*) kinds, flags);
+  (*env)->ReleasePrimitiveArrayCritical(env, jdims, dims, JNI_COMMIT);
+  (*env)->ReleasePrimitiveArrayCritical(env, jkinds, kinds, JNI_COMMIT);
+  return (jlong) plan;
+
+}
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_1d
+ * Signature: (I[D[DII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_11d
+  (JNIEnv *env, jclass clazz, jint n, jdoubleArray jin, jdoubleArray jout, jint kind, jint flags) {
+
+  double *ri = (double *) get_array(env, jin);
+  double *ro = (double *) get_array(env, jout);
+  fftw_plan plan = fftw_plan_r2r_1d(n, ri, ro, (fftw_r2r_kind) kind, flags);
+  release_array(env, jin, ri, JNI_COMMIT);
+  release_array(env, jout, ro, JNI_COMMIT);
+  return (jlong) plan;
+}
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_2d
+ * Signature: (II[D[DIII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_12d
+  (JNIEnv *env, jclass clazz, jint n0, jint n1, jdoubleArray jin, jdoubleArray jout, jint kind0, jint kind1, jint flags) {
+  double *ri = (double *) get_array(env, jin);
+  double *ro = (double *) get_array(env, jout);
+  fftw_plan plan = fftw_plan_r2r_2d(n0, n1, ri, ro, (fftw_r2r_kind) kind0, (fftw_r2r_kind) kind1, flags);
+  release_array(env, jin, ri, JNI_COMMIT);
+  release_array(env, jout, ro, JNI_COMMIT);
+  return (jlong) plan;
+}
+
+/*
+ * Class:     jfftw_planning_PrimitivePlan
+ * Method:    jfftw_plan_r2r_3d
+ * Signature: (III[D[DIIII)J
+ */
+JNIEXPORT jlong JNICALL Java_jfftw_planning_PrimitivePlan_jfftw_1plan_1r2r_13d
+  (JNIEnv *env, jclass clazz, jint n0, jint n1, jint n2, jdoubleArray jin, jdoubleArray jout, jint kind0, jint kind1, jint kind2, jint flags) {
+  double *ri = (double *) get_array(env, jin);
+  double *ro = (double *) get_array(env, jout);
+  fftw_plan plan = fftw_plan_r2r_3d(n0, n1, n2, ri, ro, (fftw_r2r_kind) kind0, (fftw_r2r_kind) kind1, (fftw_r2r_kind)  kind2, flags);
+  release_array(env, jin, ri, JNI_COMMIT);
+  release_array(env, jout, ro, JNI_COMMIT);
+  return (jlong) plan;
 }

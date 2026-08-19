@@ -4,6 +4,7 @@ import jfftw.data.Alignment;
 import jfftw.data.Dimensions;
 import jfftw.enums.Complexity;
 import jfftw.enums.Flag;
+import jfftw.enums.R2RKind;
 
 public abstract class Plan<T> {
 
@@ -16,6 +17,7 @@ public abstract class Plan<T> {
     protected final Alignment iAlign, oAlign;
     protected final boolean requiresAligned;
     protected boolean destroyed = false;
+    protected final R2RKind[] kinds;
 
     protected static synchronized native double jfftw_cost(Plan<?> p);
     protected static synchronized native void jfftw_destroy_plan(Plan<?> p);
@@ -24,7 +26,7 @@ public abstract class Plan<T> {
     protected static synchronized native void jfftw_print_plan(Plan<?> p);
     protected static synchronized native String jfftw_sprint_plan(Plan<?> p);
 
-    protected Plan(T i, T o, int is, int os, int s, Complexity c, int f, Dimensions d, Placement p, Alignment ia, Alignment oa) {
+    protected Plan(T i, T o, int is, int os, int s, Complexity c, int f, Dimensions d, Placement p, Alignment ia, Alignment oa, R2RKind... k) {
 
         input = i;
         output = o;
@@ -32,12 +34,21 @@ public abstract class Plan<T> {
         complexity = c;
         flags = f;
         placement = p;
+        kinds = k;
+
+        if (complexity == Complexity.REAL_TO_REAL && kinds == null) {
+            throw new IllegalArgumentException("Kind cannot be null for a REAL_TO_REAL transformation");
+        }
 
         if (d == null || d.size() == 0) {
             if (complexity == Complexity.COMPLEX_TO_COMPLEX || complexity == Complexity.COMPLEX_TO_REAL)
                 d = new Dimensions(is / 2);
             else
                 d = new Dimensions(is);
+        }
+
+        if (complexity == Complexity.REAL_TO_REAL && k.length != d.size()) {
+            throw new IllegalArgumentException("R2R kind count should be equal to rank");
         }
 
         rank = d.size();
